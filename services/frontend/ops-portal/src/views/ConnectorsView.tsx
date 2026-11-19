@@ -17,6 +17,9 @@ interface ConnectorHealth {
 }
 
 export const ConnectorsView: React.FC = () => {
+  const emsBaseUrl = import.meta.env.VITE_EMS_SIM_URL || 'http://localhost:9000';
+  const engineBaseUrl = import.meta.env.VITE_ENGINE_URL || 'http://localhost:8000';
+
   const [emsHealth, setEmsHealth] = useState<ConnectorHealth>({ status: 'checking' });
   const [apiHealth, setApiHealth] = useState<ConnectorHealth>({ status: 'checking' });
   const [isRelogging, setIsRelogging] = useState(false);
@@ -26,7 +29,7 @@ export const ConnectorsView: React.FC = () => {
     setEmsHealth((prev) => ({ ...prev, status: 'checking' }));
     const t0 = performance.now();
     try {
-      const res = await fetch('http://localhost:9000/health', { method: 'GET' });
+      const res = await fetch(`${emsBaseUrl}/health`, { method: 'GET' });
       const lat = Math.round(performance.now() - t0);
       if (res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -92,7 +95,7 @@ export const ConnectorsView: React.FC = () => {
     setReloginMsg(null);
     try {
       // Test real auth handshake against EMS simulation /login.do
-      const res = await fetch('http://localhost:9000/login.do', {
+      const res = await fetch(`${emsBaseUrl}/login.do`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/xml' },
       });
@@ -110,7 +113,7 @@ export const ConnectorsView: React.FC = () => {
       }
     } catch (err: any) {
       setReloginMsg({
-        text: `Error connecting to EMS gateway at http://localhost:9000: ${err.message}`,
+        text: `Error connecting to EMS gateway at ${emsBaseUrl}: ${err.message}`,
         success: false,
       });
     } finally {
@@ -164,7 +167,7 @@ export const ConnectorsView: React.FC = () => {
               ></span>
               <div>
                 <h3 className="font-bold text-slate-100 text-sm">Connector: ems (Nexacro XML)</h3>
-                <span className="text-[11px] text-slate-400 font-mono">http://localhost:9000</span>
+                <span className="text-[11px] text-slate-400 font-mono">{emsBaseUrl}</span>
               </div>
             </div>
             <span
@@ -254,7 +257,7 @@ export const ConnectorsView: React.FC = () => {
               ></span>
               <div>
                 <h3 className="font-bold text-slate-100 text-sm">Connector: http (REST APIs & Engine)</h3>
-                <span className="text-[11px] text-slate-400 font-mono">http://localhost:8000</span>
+                <span className="text-[11px] text-slate-400 font-mono">{engineBaseUrl}</span>
               </div>
             </div>
             <span

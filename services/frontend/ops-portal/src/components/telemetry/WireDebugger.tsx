@@ -333,9 +333,10 @@ export const WireDebugger: React.FC<WireDebuggerProps> = ({
       );
     }
 
+    const emsBaseUrl = import.meta.env.VITE_EMS_SIM_URL || 'http://localhost:9000';
     let connector = 'ems';
     let method = 'POST';
-    let url = targetOp ? `http://localhost:9000${targetOp}` : '';
+    let url = targetOp ? `${emsBaseUrl}${targetOp}` : '';
     let reqHeaders = '{"Content-Type": "text/xml; charset=UTF-8"}';
     let reqCookies = '{}';
     let reqBody = '';
@@ -505,7 +506,7 @@ export const WireDebugger: React.FC<WireDebuggerProps> = ({
       stepType,
       connector,
       method,
-      url: url || (targetOp ? `http://localhost:9000${targetOp}` : ''),
+      url: url || (targetOp ? `${emsBaseUrl}${targetOp}` : ''),
       reqHeaders,
       reqCookies,
       reqBody,
