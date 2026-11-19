@@ -1,22 +1,22 @@
 @echo off
 setlocal
-chcp 65001 >nul
-title Ops Platform - Automatic Setup
+title Ops Platform - Setup
 
 echo ================================================================
-echo   OPS PLATFORM - CÀI ĐẶT TỰ ĐỘNG
+echo   OPS PLATFORM - AUTOMATED SETUP
 echo ================================================================
-echo Đang chạy script cấu hình PowerShell...
+echo Starting PowerShell setup script with ExecutionPolicy Bypass...
 echo.
 
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0setup.ps1" %*
-if %ERRORLEVEL% NEQ 0 (
+set ERR=%ERRORLEVEL%
+if %ERR% NEQ 0 (
     echo.
-    echo [ERROR] Quá trình cài đặt gặp lỗi (Mã lỗi: %ERRORLEVEL%).
+    echo [ERROR] Setup failed with exit code: %ERR%
     pause
-    exit /b %ERRORLEVEL%
+    exit /b %ERR%
 )
 
 echo.
-echo Nhấn phím bất kỳ để đóng cửa sổ này hoặc chạy start.bat để bắt đầu...
+echo Press any key to exit this window or run start.bat to launch...
 pause >nul

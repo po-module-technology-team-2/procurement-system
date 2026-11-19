@@ -1,18 +1,18 @@
 @echo off
 setlocal
-chcp 65001 >nul
 title Ops Platform - Full Service Runner
 
 echo ================================================================
-echo   OPS PLATFORM - KHỞI ĐỘNG HỆ THỐNG
+echo   OPS PLATFORM - LAUNCHING ALL SERVICES
 echo ================================================================
-echo Đang nạp các dịch vụ trong nền...
+echo Starting PowerShell runner script with ExecutionPolicy Bypass...
 echo.
 
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0start.ps1" %*
-if %ERRORLEVEL% NEQ 0 (
+set ERR=%ERRORLEVEL%
+if %ERR% NEQ 0 (
     echo.
-    echo [ERROR] Quá trình chạy kết thúc với mã lỗi: %ERRORLEVEL%.
+    echo [ERROR] Runner stopped with exit code: %ERR%
     pause
-    exit /b %ERRORLEVEL%
+    exit /b %ERR%
 )

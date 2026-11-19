@@ -1,4 +1,4 @@
-﻿<#
+<#
 ==============================================================================
  Ops Platform - Setup Script (Windows / PowerShell)
  Tự động thiết lập môi trường hoàn chỉnh cho máy mới:
@@ -175,19 +175,22 @@ if (-not $SkipPython) {
     $emsVenv = Join-Path $emsDir ".venv"
     Write-Host "  -> Cấu hình: services/backend/ems-simulation" -ForegroundColor Cyan
 
+    $isFreshEms = -not (Test-Path $emsVenv)
     if ($ForceReinstall -and (Test-Path $emsVenv)) {
         Remove-Item -Recurse -Force $emsVenv
-    }
-
-    if (-not (Test-Path $emsVenv)) {
-        Write-Host "     Tạo virtualenv tại $emsVenv..." -ForegroundColor DarkGray
-        & $pythonCmd @pythonBaseArgs -m venv $emsVenv
+        $isFreshEms = $true
     }
 
     $emsPy = Join-Path $emsVenv "Scripts\python.exe"
-    Write-Host "     Cập nhật pip & cài đặt ems-simulation..." -ForegroundColor DarkGray
-    & $emsPy -m pip install --upgrade pip --quiet
-    & $emsPy -m pip install --default-timeout=100 -e $emsDir --quiet
+    if ($isFreshEms) {
+        Write-Host "     Tạo virtualenv tại $emsVenv..." -ForegroundColor DarkGray
+        & $pythonCmd @pythonBaseArgs -m venv $emsVenv
+        Write-Host "     Cập nhật pip & cài đặt ems-simulation..." -ForegroundColor DarkGray
+        & $emsPy -m pip install --upgrade pip --quiet
+        & $emsPy -m pip install --default-timeout=100 -e $emsDir --quiet
+    } else {
+        Write-Host "     Môi trường ảo đã tồn tại sẵn." -ForegroundColor DarkGray
+    }
     Write-Host "  [OK] ems-simulation sẵn sàng!" -ForegroundColor Green
 
     # 4.2 Opsflow Engine
@@ -195,19 +198,22 @@ if (-not $SkipPython) {
     $engineVenv = Join-Path $engineDir ".venv"
     Write-Host "  -> Cấu hình: services/backend/ops-workflow" -ForegroundColor Cyan
 
+    $isFreshEngine = -not (Test-Path $engineVenv)
     if ($ForceReinstall -and (Test-Path $engineVenv)) {
         Remove-Item -Recurse -Force $engineVenv
-    }
-
-    if (-not (Test-Path $engineVenv)) {
-        Write-Host "     Tạo virtualenv tại $engineVenv..." -ForegroundColor DarkGray
-        & $pythonCmd @pythonBaseArgs -m venv $engineVenv
+        $isFreshEngine = $true
     }
 
     $enginePy = Join-Path $engineVenv "Scripts\python.exe"
-    Write-Host "     Cập nhật pip & cài đặt ops-workflow..." -ForegroundColor DarkGray
-    & $enginePy -m pip install --upgrade pip --quiet
-    & $enginePy -m pip install --default-timeout=100 -e $engineDir --quiet
+    if ($isFreshEngine) {
+        Write-Host "     Tạo virtualenv tại $engineVenv..." -ForegroundColor DarkGray
+        & $pythonCmd @pythonBaseArgs -m venv $engineVenv
+        Write-Host "     Cập nhật pip & cài đặt ops-workflow..." -ForegroundColor DarkGray
+        & $enginePy -m pip install --upgrade pip --quiet
+        & $enginePy -m pip install --default-timeout=100 -e $engineDir --quiet
+    } else {
+        Write-Host "     Môi trường ảo đã tồn tại sẵn." -ForegroundColor DarkGray
+    }
     Write-Host "  [OK] ops-workflow sẵn sàng!" -ForegroundColor Green
 } else {
     Write-Host "`n[4/5] Bỏ qua cài đặt Backend (--SkipPython)." -ForegroundColor DarkGray
