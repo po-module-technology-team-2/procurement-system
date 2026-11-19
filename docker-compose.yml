@@ -1,0 +1,84 @@
+services:
+  ops-workflow:
+    build:
+      context: ./services/backend/ops-workflow
+      dockerfile: Dockerfile
+    container_name: opsflow-engine
+    restart: unless-stopped
+    ports:
+      - "${OPSFLOW_PORT:-8000}:8000"
+    environment:
+      - ENGINE_ENV=${OPSFLOW_ENV:-development}
+      - LOG_LEVEL=${OPSFLOW_LOG_LEVEL:-INFO}
+      - DATABASE_URL=${OPSFLOW_DATABASE_URL:-sqlite+aiosqlite:///opsflow.db}
+      - WORKFLOWS_DIR=${OPSFLOW_WORKFLOWS_DIR:-workflows}
+      - WORKER_CONCURRENCY=${OPSFLOW_WORKER_CONCURRENCY:-5}
+      - OPSFLOW_DEV=${OPSFLOW_DEV:-1}
+      - OPSFLOW_LOG_FILE=${OPSFLOW_LOG_FILE:-logs/opsflow_dev.log}
+      - OPSFLOW_INSECURE_SKIP_VERIFY=${OPSFLOW_INSECURE_SKIP_VERIFY:-1}
+      - EMS_USERNAME=${EMS_USERNAME:-658359}
+      - EMS_PASSWORD=${EMS_PASSWORD:-mock_ems_password_sec2026}
+      - WEBHOOK_SECRET=${OPSFLOW_WEBHOOK_SECRET:-opsflow_wh_sec_987654321}
+    volumes:
+      - ./services/backend/ops-workflow/workflows:/app/workflows
+      - ./services/backend/ops-workflow/config:/app/config
+      - opsflow-data:/app
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    depends_on:
+      - ems-simulation
+
+  ems-simulation:
+    build:
+      context: ./services/backend/ems-simulation
+      dockerfile: Dockerfile
+    container_name: ems-simulator
+    restart: unless-stopped
+    ports:
+      - "${EMS_SIM_PORT:-9000}:9000"
+    environment:
+      - EMS_SIM_HOST=${EMS_SIM_HOST:-0.0.0.0}
+      - EMS_SIM_PORT=${EMS_SIM_PORT:-9000}
+      - EMS_SIM_DATABASE_URL=${EMS_SIM_DATABASE_URL:-sqlite+aiosqlite:///ems_simulation.db}
+      - EMS_SIM_LOG_LEVEL=${EMS_SIM_LOG_LEVEL:-INFO}
+      - EMS_SIM_RECORD_PAYLOADS=${EMS_SIM_RECORD_PAYLOADS:-true}
+      - EMS_SIM_STRICT_REQUEST_VALIDATION=${EMS_SIM_STRICT_REQUEST_VALIDATION:-true}
+    volumes:
+      - ./services/backend/ems-simulation/catalog:/app/catalog
+      - ems-sim-data:/app
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:9000/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  ops-portal:
+    build:
+      context: ./services/frontend/ops-portal
+      dockerfile: Dockerfile
+    container_name: opsflow-portal
+    restart: unless-stopped
+    ports:
+      - "${OPS_PORTAL_PORT:-5174}:80"
+    depends_on:
+      ops-workflow:
+        condition: service_healthy
+
+  procurement-web:
+    build:
+      context: ./services/frontend/procurement-web
+      dockerfile: Dockerfile
+    container_name: opsflow-procurement-web
+    restart: unless-stopped
+    ports:
+      - "${PROCUREMENT_WEB_PORT:-5173}:80"
+    depends_on:
+      ops-workflow:
+        condition: service_healthy
+
+volumes:
+  opsflow-data:
+  ems-sim-data:

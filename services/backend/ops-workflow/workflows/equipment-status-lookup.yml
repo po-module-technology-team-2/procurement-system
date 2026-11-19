@@ -1,0 +1,158 @@
+version: "1.0"
+name: equipment-status-lookup
+description: Look up equipment WIP entity status, work order master details, and maintenance history from EMS
+
+connectors:
+  ems:
+    type: nexacro
+    base_url: http://localhost:9000
+    format: xml
+    verify_ssl: false
+    follow_redirects: true
+    allowed_services:
+      - /emscom/woSearchNav/retrieveWipEntity.lgdn
+      - /emscom/woMasterNav/WoMasterRetInit.lgdn
+      - /emsworkorder/wo50/wo580Nav/statusHistory.lgdn
+    limits:
+      max_concurrent: 3
+      min_interval: 100ms
+
+trigger:
+  type: cron
+  cron: "*/15 * * * *"
+  timezone: Asia/Ho_Chi_Minh
+
+inputs:
+  wip_entity_id:
+    type: string
+    default: "337389615"
+    description: Target WIP Entity ID or Equipment Work Order ID
+  organization_id:
+    type: string
+    default: "28753"
+    description: Target EMS Organization Unit ID
+  user_id:
+    type: string
+    default: "658359"
+    description: User ID for EMS API execution context
+  language:
+    type: string
+    default: "EN"
+    description: Language code
+  alert_channel:
+    type: string
+    default: "#ops-alerts"
+    description: Destination notification channel
+
+env:
+  DOMAIN: "WORK_ORDERS"
+  SYSTEM_SOURCE: "EMS_NEXACRO"
+
+defaults:
+  timeout: 30s
+  retry:
+    max_attempts: 3
+    backoff: exponential
+    delay: 2s
+    on: [timeout, network]
+
+steps:
+  - id: get_wip_entity
+    type: call
+    with:
+      connector: ems
+      operation: /emscom/woSearchNav/retrieveWipEntity.lgdn
+      params:
+        _ems_userId: "${inputs.user_id}"
+        _ems_organizationId: "${inputs.organization_id}"
+        _ems_language: "${inputs.language}"
+      in_datasets:
+        ds_input:
+          - wipEntityId: "${inputs.wip_entity_id}"
+      out_datasets:
+        - ds_output
+    outputs:
+      wip_records: "$.ds_output"
+
+  - id: get_wo_master
+    type: call
+    needs: [get_wip_entity]
+    with:
+      connector: ems
+      operation: /emscom/woMasterNav/WoMasterRetInit.lgdn
+      params:
+        _ems_userId: "${inputs.user_id}"
+        _ems_organizationId: "${inputs.organization_id}"
+        _ems_language: "${inputs.language}"
+      in_datasets:
+        ds_info:
+          - wipEntityId: "${inputs.wip_entity_id}"
+            organizationId: "${inputs.organization_id}"
+            userId: "${inputs.user_id}"
+            txnType: "RETRIEVE"
+      out_datasets:
+        - ds_wo
+        - ds_step
+        - ds_spAttachFile
+    outputs:
+      wo_master: "$.ds_wo"
+      steps: "$.ds_step"
+
+  - id: get_status_history
+    type: call
+    needs: [get_wip_entity]
+    with:
+      connector: ems
+      operation: /emsworkorder/wo50/wo580Nav/statusHistory.lgdn
+      params:
+        _ems_userId: "${inputs.user_id}"
+        _ems_organizationId: "${inputs.organization_id}"
+        _ems_language: "${inputs.language}"
+      in_datasets:
+        ds_info:
+          - wipEntityId: "${inputs.wip_entity_id}"
+            organizationId: "${inputs.organization_id}"
+            userId: "${inputs.user_id}"
+      out_datasets:
+        - ds_list
+    outputs:
+      history: "$.ds_list"
+
+  - id: normalize_equipment_status
+    type: transform
+    needs: [get_wip_entity, get_wo_master]
+    with:
+      engine: jmespath
+      input: "${steps.get_wo_master.outputs.wo_master}"
+      expression: |
+        [].{
+          wip_entity_id: wipEntityId,
+          work_order_no: wipEntityName,
+          status: statusType,
+          description: description,
+          organization_id: organizationId,
+          equipment_id: assetNumber
+        }
+
+  - id: save_equipment_status
+    type: db_upsert
+    needs: [normalize_equipment_status]
+    with:
+      table: equipment_status
+      key: [wip_entity_id]
+      rows: "${steps.normalize_equipment_status.outputs}"
+
+  - id: alert_status
+    type: notify
+    needs: [normalize_equipment_status]
+    with:
+      channel: "${inputs.alert_channel}"
+      message: "Work Order status refreshed for WIP Entity ${inputs.wip_entity_id}."
+
+on_error:
+  strategy: continue
+
+publish:
+  dataset: equipment_status
+  source: "${steps.normalize_equipment_status.outputs}"
+  event: equipment.status.updated
