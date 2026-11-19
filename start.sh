@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# Ops Platform Unified Service Starter
+# Ops Platform Unified Service Starter (Linux / macOS / WSL)
 # Launches:
 #   1. EMS Simulation Server   (Port 9000)
 #   2. Opsflow Core Engine API (Port 8000)
 #   3. Opsflow Console Portal  (Port 5174)
+#   4. Procurement Web UI      (Port 5173)
 # ==============================================================================
 
 set -eo pipefail
@@ -35,7 +36,7 @@ echo "| |_| | |_) \__ \|  _| | | (_) \ V  V /  "
 echo " \___/| .__/|___/|_|   |_|\___/ \_/\_/   "
 echo "      |_|                                "
 echo -e "${NC}"
-echo -e "${BOLD}Launching Ops-Workflow Platform Services...${NC}"
+echo -e "${BOLD}Launching Ops Platform Services (All 4 Components)...${NC}"
 echo "--------------------------------------------------------"
 
 # 1. Load Root .env safely if exists
@@ -62,39 +63,30 @@ ENGINE_VENV="$SCRIPT_DIR/services/backend/ops-workflow/.venv"
 PORTAL_DIR="$SCRIPT_DIR/services/frontend/ops-portal"
 PROCUREMENT_DIR="$SCRIPT_DIR/services/frontend/procurement-web"
 
-# 2. Check Prerequisites
-echo -e "${BLUE}[INFO]${NC} Checking runtime environments..."
-if [[ ! -d "$EMS_VENV" ]]; then
-  echo -e "${RED}[ERROR] Virtual environment for ems-simulation not found at $EMS_VENV${NC}"
-  echo "Please set up: cd services/backend/ems-simulation && python3 -m venv .venv && pip install -e ."
-  exit 1
-fi
-
-if [[ ! -d "$ENGINE_VENV" ]]; then
-  echo -e "${RED}[ERROR] Virtual environment for ops-workflow not found at $ENGINE_VENV${NC}"
-  echo "Please set up: cd services/backend/ops-workflow && python3 -m venv .venv && pip install -e ."
-  exit 1
-fi
-
-if [[ ! -d "$PORTAL_DIR/node_modules" ]]; then
-  echo -e "${YELLOW}[WARN] node_modules not found in ops-portal. Running npm install...${NC}"
-  (cd "$PORTAL_DIR" && npm install)
-fi
-
-if [[ ! -d "$PROCUREMENT_DIR/node_modules" ]]; then
-  echo -e "${YELLOW}[WARN] node_modules not found in procurement-web. Running npm install...${NC}"
-  (cd "$PROCUREMENT_DIR" && npm install)
+# 2. Check Prerequisites - Auto run setup if missing
+if [[ ! -d "$EMS_VENV" || ! -d "$ENGINE_VENV" || ! -d "$PORTAL_DIR/node_modules" || ! -d "$PROCUREMENT_DIR/node_modules" ]]; then
+  echo -e "${YELLOW}[WARN] Missing dependencies or virtual environments. Running ./setup.sh...${NC}"
+  if [[ -f "$SCRIPT_DIR/setup.sh" ]]; then
+    bash "$SCRIPT_DIR/setup.sh"
+  else
+    echo -e "${RED}[ERROR] setup.sh not found.${NC}"
+    exit 1
+  fi
 fi
 
 # Track child PIDs
 EMS_PID=""
 ENGINE_PID=""
 PORTAL_PID=""
+PROCUREMENT_PID=""
 
 cleanup() {
   echo ""
   echo -e "${YELLOW}${BOLD}Shutting down all services gracefully...${NC}"
   
+  if [[ -n "$PROCUREMENT_PID" ]] && kill -0 "$PROCUREMENT_PID" 2>/dev/null; then
+    kill "$PROCUREMENT_PID" 2>/dev/null || true
+  fi
   if [[ -n "$PORTAL_PID" ]] && kill -0 "$PORTAL_PID" 2>/dev/null; then
     kill "$PORTAL_PID" 2>/dev/null || true
   fi
@@ -105,10 +97,13 @@ cleanup() {
     kill "$EMS_PID" 2>/dev/null || true
   fi
 
-  # Kill remaining processes on ports if any
-  fuser -k "${EMS_PORT}/tcp" 2>/dev/null || true
-  fuser -k "${ENGINE_PORT}/tcp" 2>/dev/null || true
-  fuser -k "${PORTAL_PORT}/tcp" 2>/dev/null || true
+  # Kill remaining processes on ports if fuser is available
+  if command -v fuser >/dev/null 2>&1; then
+    fuser -k "${EMS_PORT}/tcp" 2>/dev/null || true
+    fuser -k "${ENGINE_PORT}/tcp" 2>/dev/null || true
+    fuser -k "${PORTAL_PORT}/tcp" 2>/dev/null || true
+    fuser -k "${PROCUREMENT_PORT}/tcp" 2>/dev/null || true
+  fi
 
   echo -e "${GREEN}All services stopped cleanly.${NC}"
   exit 0
@@ -116,37 +111,48 @@ cleanup() {
 
 trap cleanup INT TERM EXIT
 
-# Kill lingering processes on those ports before starting
-fuser -k "${EMS_PORT}/tcp" 2>/dev/null || true
-fuser -k "${ENGINE_PORT}/tcp" 2>/dev/null || true
-fuser -k "${PORTAL_PORT}/tcp" 2>/dev/null || true
+# Kill lingering processes on those ports before starting if fuser exists
+if command -v fuser >/dev/null 2>&1; then
+  fuser -k "${EMS_PORT}/tcp" 2>/dev/null || true
+  fuser -k "${ENGINE_PORT}/tcp" 2>/dev/null || true
+  fuser -k "${PORTAL_PORT}/tcp" 2>/dev/null || true
+  fuser -k "${PROCUREMENT_PORT}/tcp" 2>/dev/null || true
+fi
 
 # 3. Start EMS Simulation
-echo -e "${CYAN}[1/3] Starting EMS Simulation Server (Port $EMS_PORT)...${NC}"
+echo -e "${CYAN}[1/4] Starting EMS Simulation Server (Port $EMS_PORT)...${NC}"
 (
   cd "$SCRIPT_DIR/services/backend/ems-simulation"
   export EMS_SIM_DATABASE_URL="sqlite+aiosqlite:///$SCRIPT_DIR/ems_simulation.db"
-  exec "$EMS_VENV/bin/python" -m ems_sim.cli start --host 0.0.0.0 --port "$EMS_PORT" --reload
+  exec "$EMS_VENV/bin/python" -m ems_sim.cli start --host 0.0.0.0 --port "$EMS_PORT"
 ) > logs/ems-simulation.log 2>&1 &
 EMS_PID=$!
 
 # 4. Start Opsflow Core Engine
-echo -e "${CYAN}[2/3] Starting Opsflow Core Engine API (Port $ENGINE_PORT)...${NC}"
+echo -e "${CYAN}[2/4] Starting Opsflow Core Engine API (Port $ENGINE_PORT)...${NC}"
 (
   cd "$SCRIPT_DIR/services/backend/ops-workflow"
   export DATABASE_URL="sqlite+aiosqlite:///$SCRIPT_DIR/opsflow.db"
   export WORKFLOWS_DIR="$SCRIPT_DIR/services/backend/ops-workflow/workflows"
-  exec "$ENGINE_VENV/bin/opsflow" api --host 0.0.0.0 --port "$ENGINE_PORT" --reload --dev
+  exec "$ENGINE_VENV/bin/opsflow" api --host 0.0.0.0 --port "$ENGINE_PORT" --dev
 ) > logs/opsflow.log 2>&1 &
 ENGINE_PID=$!
 
 # 5. Start Opsflow Web Console
-echo -e "${CYAN}[3/3] Starting Opsflow Console UI (Port $PORTAL_PORT)...${NC}"
+echo -e "${CYAN}[3/4] Starting Opsflow Console UI (Port $PORTAL_PORT)...${NC}"
 (
   cd "$PORTAL_DIR"
   exec npm run dev -- --host 0.0.0.0 --port "$PORTAL_PORT"
 ) > logs/ops-portal.log 2>&1 &
 PORTAL_PID=$!
+
+# 6. Start Procurement Web UI
+echo -e "${CYAN}[4/4] Starting Procurement Web UI (Port $PROCUREMENT_PORT)...${NC}"
+(
+  cd "$PROCUREMENT_DIR"
+  exec npm run dev -- --host 0.0.0.0 --port "$PROCUREMENT_PORT"
+) > logs/procurement-web.log 2>&1 &
+PROCUREMENT_PID=$!
 
 echo -e "\n${BLUE}[INFO]${NC} Waiting for services to become healthy..."
 
@@ -171,21 +177,24 @@ wait_for_url() {
 wait_for_url "http://localhost:${EMS_PORT}/health" "EMS Simulation"
 wait_for_url "http://localhost:${ENGINE_PORT}/health" "Opsflow Core API"
 wait_for_url "http://localhost:${PORTAL_PORT}" "Opsflow Console Portal"
+wait_for_url "http://localhost:${PROCUREMENT_PORT}" "Procurement Web UI"
 
 echo "--------------------------------------------------------"
-echo -e "${GREEN}${BOLD} All Services Are Up and Running!${NC}"
+echo -e "${GREEN}${BOLD} All 4 Services Are Up and Running!${NC}"
 echo "--------------------------------------------------------"
-echo -e "  ${BOLD}Web Console (UI):${NC}    ${CYAN}http://localhost:${PORTAL_PORT}${NC}"
-echo -e "  ${BOLD}Opsflow Core API:${NC}    ${CYAN}http://localhost:${ENGINE_PORT}${NC}  (Docs: ${CYAN}http://localhost:${ENGINE_PORT}/api/v1/docs${NC})"
-echo -e "  ${BOLD}EMS Simulation:${NC}      ${CYAN}http://localhost:${EMS_PORT}${NC}  (Health: ${CYAN}http://localhost:${EMS_PORT}/health${NC})"
+echo -e "  ${BOLD}Ops Portal (UI):${NC}       ${CYAN}http://localhost:${PORTAL_PORT}${NC}"
+echo -e "  ${BOLD}Procurement Web (UI):${NC}  ${CYAN}http://localhost:${PROCUREMENT_PORT}${NC}"
+echo -e "  ${BOLD}Opsflow Core API:${NC}      ${CYAN}http://localhost:${ENGINE_PORT}${NC}  (Docs: ${CYAN}http://localhost:${ENGINE_PORT}/api/v1/docs${NC})"
+echo -e "  ${BOLD}EMS Simulation:${NC}        ${CYAN}http://localhost:${EMS_PORT}${NC}  (Health: ${CYAN}http://localhost:${EMS_PORT}/health${NC})"
 echo "--------------------------------------------------------"
 echo -e "${YELLOW}Logs are streamed to:${NC}"
 echo "  - logs/ems-simulation.log"
 echo "  - logs/opsflow.log"
 echo "  - logs/ops-portal.log"
+echo "  - logs/procurement-web.log"
 echo ""
 echo -e "${BOLD}Press [Ctrl+C] to stop all services simultaneously.${NC}"
 echo "--------------------------------------------------------"
 
-# Keep the script running and tail logs or wait for interrupt
+# Keep the script running
 wait

@@ -1,28 +1,30 @@
-﻿{
-    "api_id":  "stock_management.target_stock.get_optimize_info",
-    "match":  {
-                  "params":  {
-                                 "_ems_organizationId":  "28753"
-                             }
-              },
-    "id":  "fixture.stock_management.target_stock.get_optimize_info",
-    "response":  {
-                     "params":  {
-                                    "errorMsg":  "",
-                                    "errorCode":  "1"
-                                },
-                     "datasets":  {
-                                      "ds_rtn":  {
-                                                     "cols":  [
-                                                                  "optimizeFlag",
-                                                                  "optimizedApplyDate"
-                                                              ],
-                                                     "rows":  [
-                                                                  "Y",
-                                                                  "20210316"
-                                                              ],
-                                                     "count":  1
-                                                 }
-                                  }
-                 }
+{
+  "api_id": "stock_management.target_stock.get_optimize_info",
+  "match": {
+    "params": {
+      "_ems_organizationId": "28753"
+    }
+  },
+  "id": "fixture.stock_management.target_stock.get_optimize_info",
+  "response": {
+    "params": {
+      "errorMsg": "",
+      "errorCode": "1"
+    },
+    "datasets": {
+      "ds_rtn": {
+        "cols": [
+          "optimizeFlag",
+          "optimizedApplyDate"
+        ],
+        "rows": [
+          [
+            "Y",
+            "20210316"
+          ]
+        ],
+        "count": 1
+      }
+    }
+  }
 }

@@ -71,6 +71,76 @@ ops-platform/
 
 ---
 
+## 🚀 Khởi động Nhanh Khi Đưa Vào Máy Mới (Quickstart for New Machines)
+
+Dự án cung cấp bộ script tự động hóa hoàn chỉnh cho cả Windows và Linux/macOS. Chỉ cần 1 thao tác duy nhất để thiết lập và chạy toàn bộ 4 dịch vụ:
+
+### 1. Dành cho Windows (Khuyến nghị)
+
+#### Bước 1: Cài đặt tự động toàn bộ môi trường (Setup)
+Nhấp đúp chuột vào file **`setup.bat`** (hoặc mở PowerShell chạy `.\setup.ps1`):
+* Tự động kiểm tra Python 3.11/3.12 và Node.js 18+.
+* Tự động khởi tạo file cấu hình `.env` từ `.env.example`.
+* Tự động tạo virtualenv và cài đặt dependencies cho 2 backend (`ems-simulation`, `ops-workflow`).
+* Tự động cài đặt npm packages cho 2 frontend (`ops-portal`, `procurement-web`).
+
+```powershell
+# Hoặc chạy qua PowerShell:
+.\setup.ps1
+```
+
+#### Bước 2: Khởi động toàn bộ 4 dịch vụ (Run)
+Nhấp đúp chuột vào file **`start.bat`** (hoặc mở PowerShell chạy `.\start.ps1`):
+* Tự động kiểm tra giải phóng cổng xung đột (9000, 8000, 5174, 5173).
+* Khởi chạy song song cả 4 dịch vụ trong nền.
+* Tự động kiểm tra trạng thái sức khỏe (Health Check).
+* Tự động mở trình duyệt Web Portal.
+* Nhấn `Ctrl + C` để dừng đồng thời và sạch sẽ toàn bộ 4 dịch vụ.
+
+```powershell
+# Hoặc chạy qua PowerShell:
+.\start.ps1
+```
+
+---
+
+### 2. Dành cho Linux / macOS / WSL
+
+```bash
+# Bước 1: Thiết lập môi trường tự động
+chmod +x setup.sh start.sh
+./setup.sh
+
+# Bước 2: Khởi chạy toàn bộ hệ thống
+./start.sh
+```
+
+---
+
+### 3. Khởi động bằng Docker Compose (Tùy chọn)
+
+```bash
+# Build và chạy toàn bộ qua Docker Compose:
+docker compose up --build
+
+# Hoặc dùng script tiện ích:
+.\start.ps1 -Docker      # Trên Windows
+./start.sh --docker      # Trên Linux/macOS
+```
+
+---
+
+## 🌐 Danh sách Cổng & Địa chỉ Dịch vụ
+
+| Dịch vụ | Loại | Cổng mặc định | URL Truy cập |
+|---|---|---|---|
+| **Opsflow Portal Console** | Frontend UI | `5174` | [http://localhost:5174](http://localhost:5174) |
+| **Procurement Web UI** | Frontend UI | `5173` | [http://localhost:5173](http://localhost:5173) |
+| **Opsflow Core Engine API** | Backend API | `8000` | [http://localhost:8000](http://localhost:8000) (Docs: `/api/v1/docs`) |
+| **EMS Simulation Mock Server**| Backend Sim | `9000` | [http://localhost:9000](http://localhost:9000) (Health: `/health`) |
+
+---
+
 ## 💻 Getting Started with Docker Compose
 
 Spin up all platform services locally:

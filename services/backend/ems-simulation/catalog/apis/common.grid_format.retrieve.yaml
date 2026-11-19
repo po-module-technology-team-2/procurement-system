@@ -7,7 +7,7 @@ endpoint:
   method: POST
   path: /emscom/gridFormatNav/retrieveGridFormat.lgdn
 request:
-  params:
+  params: []
   datasets: []
 execution:
   type: handler

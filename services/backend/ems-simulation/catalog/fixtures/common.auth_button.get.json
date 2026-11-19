@@ -1,34 +1,36 @@
-﻿{
-    "api_id":  "common.auth_button.get",
-    "match":  {
-                  "params":  {
-                                 "_ems_organizationId":  "28753"
-                             }
-              },
-    "id":  "fixture.common.auth_button.get",
-    "response":  {
-                     "params":  {
-                                    "errorMsg":  "",
-                                    "errorCode":  "1"
-                                },
-                     "datasets":  {
-                                      "ds_auth":  {
-                                                      "cols":  [
-                                                                   "orgRfqFlag",
-                                                                   "orgEmrgFlag",
-                                                                   "orgPublicFlag",
-                                                                   "commonMgrFlag",
-                                                                   "rebMgrFlag"
-                                                               ],
-                                                      "rows":  [
-                                                                   "Y",
-                                                                   "N",
-                                                                   "Y",
-                                                                   "N",
-                                                                   "N"
-                                                               ],
-                                                      "count":  1
-                                                  }
-                                  }
-                 }
+{
+  "api_id": "common.auth_button.get",
+  "match": {
+    "params": {
+      "_ems_organizationId": "28753"
+    }
+  },
+  "id": "fixture.common.auth_button.get",
+  "response": {
+    "params": {
+      "errorMsg": "",
+      "errorCode": "1"
+    },
+    "datasets": {
+      "ds_auth": {
+        "cols": [
+          "orgRfqFlag",
+          "orgEmrgFlag",
+          "orgPublicFlag",
+          "commonMgrFlag",
+          "rebMgrFlag"
+        ],
+        "rows": [
+          [
+            "Y",
+            "N",
+            "Y",
+            "N",
+            "N"
+          ]
+        ],
+        "count": 1
+      }
+    }
+  }
 }

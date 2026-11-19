@@ -1,26 +1,28 @@
-﻿{
-    "api_id":  "report.unprcs.retrieve_total",
-    "match":  {
-                  "params":  {
-                                 "organizationId":  "28753"
-                             }
-              },
-    "id":  "fixture.report.unprcs.retrieve_total",
-    "response":  {
-                     "params":  {
-                                    "errorMsg":  "",
-                                    "errorCode":  "1"
-                                },
-                     "datasets":  {
-                                      "ds_result":  {
-                                                        "cols":  [
-                                                                     "totalCnt"
-                                                                 ],
-                                                        "rows":  [
-                                                                     "5"
-                                                                 ],
-                                                        "count":  1
-                                                    }
-                                  }
-                 }
+{
+  "api_id": "report.unprcs.retrieve_total",
+  "match": {
+    "params": {
+      "organizationId": "28753"
+    }
+  },
+  "id": "fixture.report.unprcs.retrieve_total",
+  "response": {
+    "params": {
+      "errorMsg": "",
+      "errorCode": "1"
+    },
+    "datasets": {
+      "ds_result": {
+        "cols": [
+          "totalCnt"
+        ],
+        "rows": [
+          [
+            "5"
+          ]
+        ],
+        "count": 1
+      }
+    }
+  }
 }

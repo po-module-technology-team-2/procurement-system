@@ -1,4 +1,4 @@
-﻿{
+{
     "api_id":  "spare_parts.rfq.create_insert",
     "match":  {
                   "params":  {

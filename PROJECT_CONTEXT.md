@@ -65,9 +65,15 @@ ops-platform/
 
 ---
 
-## 5. Development Shortcuts
+## 5. Development Shortcuts & Scripts
 
-- **Start all via Docker**: `docker compose up -d`
+- **First-time Setup on New Machine**:
+  - Windows: Double-click `setup.bat` (or PowerShell `.\setup.ps1`)
+  - Linux/macOS: `./setup.sh`
+- **Run All 4 Services**:
+  - Windows: Double-click `start.bat` (or PowerShell `.\start.ps1`)
+  - Linux/macOS: `./start.sh`
+- **Start all via Docker**: `docker compose up -d` (or `.\start.ps1 -Docker` / `./start.sh --docker`)
 - **Start all natively**: `./start.sh`
 - **Run Backend Tests**: `cd services/backend/ops-workflow && pytest`
 - **Run Simulator Tests**: `cd services/backend/ems-simulation && pytest`
