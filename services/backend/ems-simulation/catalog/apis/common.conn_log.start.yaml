@@ -1,4 +1,4 @@
-﻿id: common.conn_log.start
+id: common.conn_log.start
 name: Insert Connection Start Log
 domain: common
 version: 1.0.0
