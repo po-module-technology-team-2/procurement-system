@@ -1,0 +1,29 @@
+﻿{
+    "api_id":  "common.grid_format.retrieve",
+    "match":  {
+                  "params":  {
+
+                             }
+              },
+    "id":  "fixture.common.grid_format.retrieve",
+    "response":  {
+                     "params":  {
+                                    "errorMsg":  "",
+                                    "errorCode":  "1"
+                                },
+                     "datasets":  {
+                                      "ds_list":  {
+                                                      "cols":  [
+                                                                   "programId",
+                                                                   "screenGridName",
+                                                                   "userId",
+                                                                   "gridFormatXml"
+                                                               ],
+                                                      "rows":  [
+
+                                                               ],
+                                                      "count":  0
+                                                  }
+                                  }
+                 }
+}

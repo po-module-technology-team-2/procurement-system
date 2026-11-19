@@ -1,0 +1,25 @@
+﻿id: common.auth_button.get
+name: Get Auth Button Permissions
+domain: common
+version: 1.0.0
+enabled: true
+endpoint:
+  method: POST
+  path: /emscom/authButtonNav/getAuthButton.lgdn
+request:
+  params:
+  - _ems_userId
+  - _ems_organizationId
+  - _ems_language
+  datasets: []
+execution:
+  type: handler
+  handler: common.auth_button
+  fixture_id: fixture.common.auth_button.get
+response:
+  params:
+  - errorCode
+  - errorMsg
+  datasets:
+  - name: ds_auth
+    schema: common.ds_auth.schema

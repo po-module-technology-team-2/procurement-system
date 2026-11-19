@@ -1,0 +1,24 @@
+﻿id: common.popup.retrieve_department
+name: Retrieve Department Popup
+domain: common
+version: 1.0.0
+enabled: true
+endpoint:
+  method: POST
+  path: /emscom/popupNav/retrieveDepartment.lgdn
+request:
+  params:
+  - _ems_userId
+  - _ems_organizationId
+  datasets: []
+execution:
+  type: handler
+  handler: popup.retrieve_department
+  fixture_id: fixture.common.popup.retrieve_department
+response:
+  params:
+  - errorCode
+  - errorMsg
+  datasets:
+  - name: ds_List
+    schema: common.ds_List.schema

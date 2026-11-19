@@ -1,0 +1,24 @@
+﻿id: stock_management.target_stock.get_optimize_info
+name: Get Target Stock Optimize Info
+domain: stock_management
+version: 1.0.0
+enabled: true
+endpoint:
+  method: POST
+  path: /emsspareparts/sp302/sp330Nav/GetOptimizeInfo.lgdn
+request:
+  params:
+  - _ems_userId
+  - _ems_organizationId
+  datasets: []
+execution:
+  type: handler
+  handler: inventory.get_optimize_info
+  fixture_id: fixture.stock_management.target_stock.get_optimize_info
+response:
+  params:
+  - errorCode
+  - errorMsg
+  datasets:
+  - name: ds_rtn
+    schema: stock_management.ds_rtn.schema

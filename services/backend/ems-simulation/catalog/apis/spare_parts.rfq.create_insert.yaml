@@ -1,0 +1,22 @@
+﻿id: spare_parts.rfq.create_insert
+name: Create and Insert RFQ Into Request
+domain: spare_parts
+version: 1.0.0
+enabled: true
+endpoint:
+  method: POST
+  path: /emsspareparts/sp101/sp110Nav/CreInsertRfqIntoRequest.lgdn
+request:
+  params:
+  - _ems_userId
+  - _ems_organizationId
+  datasets: []
+execution:
+  type: handler
+  handler: inventory.create_insert_rfq
+  fixture_id: fixture.spare_parts.rfq.create_insert
+response:
+  params:
+  - errorCode
+  - errorMsg
+  datasets:

@@ -1,0 +1,18 @@
+﻿{
+    "api_id":  "common.conn_log.start",
+    "match":  {
+                  "params":  {
+
+                             }
+              },
+    "id":  "fixture.common.conn_log.start",
+    "response":  {
+                     "params":  {
+                                    "errorMsg":  "",
+                                    "errorCode":  "1"
+                                },
+                     "datasets":  {
+
+                                  }
+                 }
+}

@@ -1,0 +1,27 @@
+﻿id: common.login.retrieve_board_file
+name: Retrieve Login Bulletin Board Attachments
+domain: common
+version: 1.0.0
+enabled: true
+endpoint:
+  method: POST
+  path: /emscom/loginNav/retrieveBoardFile.lgdn
+request:
+  params:
+  - bulletinBoardSeqNo
+  - _ems_userId
+  - _ems_organizationId
+  datasets: []
+execution:
+  type: handler
+  handler: common.retrieve_board_file
+  fixture_id: fixture.common.login.retrieve_board_file
+response:
+  params:
+  - errorCode
+  - errorMsg
+  datasets:
+  - name: ds_list
+    schema: common.ds_list.schema
+  - name: ds_image
+    schema: common.ds_image.schema

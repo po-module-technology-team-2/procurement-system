@@ -1,0 +1,25 @@
+﻿id: common.conn_log.end
+name: Update Connection End Log
+domain: common
+version: 1.0.0
+enabled: true
+endpoint:
+  method: POST
+  path: /emscom/connLogNav/updateEndLog.lgdn
+request:
+  params:
+  - userId
+  - programId
+  - objectName
+  - type
+  - organizationId
+  datasets: []
+execution:
+  type: handler
+  handler: common.conn_log_end
+  fixture_id: fixture.common.conn_log.end
+response:
+  params:
+  - errorCode
+  - errorMsg
+  datasets:

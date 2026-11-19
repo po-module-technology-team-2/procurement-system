@@ -1,0 +1,24 @@
+﻿id: report.unprcs.retrieve_total
+name: Retrieve Unprocessed Tasks Total
+domain: report
+version: 1.0.0
+enabled: true
+endpoint:
+  method: POST
+  path: /emsreport/rp70/rp710Nav/retrieveUnPrcsTotal.lgdn
+request:
+  params:
+  - organizationId
+  - _ems_userId
+  datasets: []
+execution:
+  type: handler
+  handler: common.retrieve_unprcs_total
+  fixture_id: fixture.report.unprcs.retrieve_total
+response:
+  params:
+  - errorCode
+  - errorMsg
+  datasets:
+  - name: ds_result
+    schema: report.ds_result.schema

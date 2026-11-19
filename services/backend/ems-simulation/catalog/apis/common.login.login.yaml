@@ -1,0 +1,32 @@
+﻿id: common.login.login
+name: Nexacro User Login and Auth
+domain: common
+version: 1.0.0
+enabled: true
+endpoint:
+  method: POST
+  path: /emscom/loginNav/login.lgdn
+request:
+  params:
+  - letsId
+  - userId
+  - getDefUser
+  - getBrowser
+  datasets: []
+execution:
+  type: handler
+  handler: common.login
+  fixture_id: fixture.common.login.login
+response:
+  params:
+  - errorCode
+  - errorMsg
+  datasets:
+  - name: ds_UserInfo
+    schema: common.ds_UserInfo.schema
+  - name: ds_Responsibility
+    schema: common.ds_Responsibility.schema
+  - name: ds_MenuList
+    schema: common.ds_MenuList.schema
+  - name: ds_trItrList
+    schema: common.ds_trItrList.schema

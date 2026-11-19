@@ -1,0 +1,26 @@
+﻿{
+    "api_id":  "common.seq.ret_request_master_id",
+    "match":  {
+                  "params":  {
+                                 "_ems_organizationId":  "28753"
+                             }
+              },
+    "id":  "fixture.common.seq.ret_request_master_id",
+    "response":  {
+                     "params":  {
+                                    "errorMsg":  "",
+                                    "errorCode":  "1"
+                                },
+                     "datasets":  {
+                                      "ds_result":  {
+                                                        "cols":  [
+                                                                     "requestMasterId"
+                                                                 ],
+                                                        "rows":  [
+                                                                     "18208179"
+                                                                 ],
+                                                        "count":  1
+                                                    }
+                                  }
+                 }
+}

@@ -1,0 +1,48 @@
+﻿{
+    "api_id":  "common.popup.retrieve_employee",
+    "match":  {
+                  "params":  {
+                                 "_ems_organizationId":  "28753"
+                             }
+              },
+    "id":  "fixture.common.popup.retrieve_employee",
+    "response":  {
+                     "params":  {
+                                    "errorMsg":  "",
+                                    "errorCode":  "1"
+                                },
+                     "datasets":  {
+                                      "ds_List":  {
+                                                      "cols":  [
+                                                                   "personId",
+                                                                   "userId",
+                                                                   "employeeName",
+                                                                   "employeeNo",
+                                                                   "department",
+                                                                   "emailAddress",
+                                                                   "phoneNo",
+                                                                   "enabledFlag",
+                                                                   "userDetail",
+                                                                   "titleName",
+                                                                   "departmentDesc",
+                                                                   "chkFlag"
+                                                               ],
+                                                      "rows":  [
+                                                                   "1369610",
+                                                                   "658359",
+                                                                   "Pham Duc Long",
+                                                                   "VH081996",
+                                                                   "87479",
+                                                                   "phamduclong04@lgdisplay.com",
+                                                                   "0366270148",
+                                                                   "Y",
+                                                                   "Engineer",
+                                                                   "Senior Engineer",
+                                                                   "NY SW PO M Technology DB/BD Unit B2",
+                                                                   ""
+                                                               ],
+                                                      "count":  1
+                                                  }
+                                  }
+                 }
+}

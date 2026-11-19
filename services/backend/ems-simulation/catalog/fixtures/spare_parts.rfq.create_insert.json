@@ -1,0 +1,18 @@
+﻿{
+    "api_id":  "spare_parts.rfq.create_insert",
+    "match":  {
+                  "params":  {
+                                 "_ems_organizationId":  "28753"
+                             }
+              },
+    "id":  "fixture.spare_parts.rfq.create_insert",
+    "response":  {
+                     "params":  {
+                                    "ErrorMsg":  "[L016327]Quotation is in progress. Please check current status of the quotation with the person in charge of purchase.( Item:QCAD17426 - Unit Price Status Error)",
+                                    "ErrorCode":  "-1"
+                                },
+                     "datasets":  {
+
+                                  }
+                 }
+}
