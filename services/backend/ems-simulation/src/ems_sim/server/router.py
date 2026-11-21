@@ -65,6 +65,34 @@ async def dispatch_nexacro_request(full_path: str, request: Request) -> Response
         resp.set_cookie("JSESSIONID", sim_session_id)
         return resp
 
+    # Handle EDMS SSO Simulation Endpoints (Data.xlsb Sheet 4)
+    if norm_path == "/Servlet/MainContent.do":
+        content = (
+            "<html><head><title>EDMS Main Content</title></head>"
+            "<body><h1>LG Display Enterprise Document Management System (EDMS)</h1>"
+            "<p>Session status: OK</p></body></html>"
+        )
+        return Response(content=content, media_type="text/html; charset=utf-8")
+
+    if norm_path == "/pdadmin/eai/eai.jsp":
+        token_param = request.query_params.get("token", "SIM_SSO_TOKEN_12345")
+        sim_edms_cookie = f"EDMS_SSO_{token_param[:16] if token_param else 'VALID'}"
+        resp = Response(
+            content=json.dumps({"status": "SUCCESS", "message": "EDMS SSO Cookie Exchanged", "token": token_param}),
+            media_type="application/json"
+        )
+        resp.set_cookie("EDMSSESSIONID", sim_edms_cookie, httponly=True)
+        return resp
+
+    if norm_path == "/api/v1/auth/edms/status":
+        return JSONResponse({
+            "service": "ems-simulation",
+            "edms_sso_configured": True,
+            "edms_host": "http://edms.lgdisplay.com:8080",
+            "sso_host": "http://im.lgdisplay.com:8088",
+            "ws_agent_url": "ws://127.0.0.1:28083/"
+        })
+
     # 1. Resolve registered endpoint
     api_def = api_registry.resolve(method, norm_path)
     if not api_def:

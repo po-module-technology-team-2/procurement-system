@@ -1,0 +1,7 @@
+1. Cung cấp EM No< Factory, Line, Em No, Model Product, Process, Machine, Unit, Assembly, Element>:
+2. Cung cấp Danh sách nhân viên< Employees: id, vh, name, role<Engineer, Leader, LEC>, process  
+3. Cung cấp nguyên nhân< Setup, Broken, Improve,..>
+4. Workflow
+    Báo giá
+    Thẩm định
+    Request PO
